@@ -1,13 +1,14 @@
 from app.src import pieces
 from app.src.board import Board
 
+
 def validate_fen(fen_string):
     blocks = fen_string.split(" ")
 
-    if  not 2 <= len(blocks) <= 6:
+    if not 2 <= len(blocks) <= 6:
         raise Exception("Invalid FEN string")
 
-    parts =  blocks[0].split('/')
+    parts = blocks[0].split('/')
     if len(parts) != 8:
         raise ValueError("A small number of rows on the board")
 
@@ -23,7 +24,7 @@ def validate_fen(fen_string):
         if count != 8:
             raise Exception("Invalid FEN string")
 
-    if  blocks[1] != "w" and  blocks[1] != "b":
+    if blocks[1] != "w" and blocks[1] != "b":
         raise Exception("Invalid FEN string")
 
     if len(blocks) >= 3:
@@ -40,29 +41,27 @@ def validate_fen(fen_string):
             if third.count("k") > 1 or third.count("q") > 1 or third.count("K") > 1 or third.count("Q") > 1:
                 raise Exception("Invalid FEN string")
 
-
     if len(blocks) >= 4:
-        four =  blocks[3]
+        four = blocks[3]
         if four == '-':
             pass
         else:
             if len(four) != 2:
                 raise Exception("Invalid FEN string")
-            if  four[0] not in "abcdefgh" or  four[1] not in "36":
+            if four[0] not in "abcdefgh" or four[1] not in "36":
                 raise Exception("Invalid FEN string")
 
     if len(blocks) >= 5:
-        if  blocks[4].isdigit() and  int(blocks[4]) >= 0:
+        if blocks[4].isdigit() and int(blocks[4]) >= 0:
             pass
         else:
             raise Exception("Invalid FEN string")
 
         if len(blocks) >= 6:
-            if  blocks[5].isdigit() and  int(blocks[5]) > 0:
+            if blocks[5].isdigit() and int(blocks[5]) > 0:
                 pass
             else:
                 raise Exception("Invalid FEN string")
-
 
 
 def parse_fen(fen_string):
@@ -78,17 +77,17 @@ def parse_fen(fen_string):
 
     board = Board()
 
-    board_list =  fen_string.split(" ")[0].split('/')
-    for y , row in enumerate(board_list):
+    board_list = fen_string.split(" ")[0].split('/')
+    for y, row in enumerate(board_list):
         board_x = 0
-        for x  in range(len(row)):
+        for x in range(len(row)):
             if row[x].isalpha():
                 if row[x].islower():
-                    board.put_piece(y,board_x , piece_mapping[row[x]](y,board_x,"black"))
+                    board.put_piece(y, board_x, piece_mapping[row[x]](y, board_x, "black"))
                     board_x += 1
                 else:
                     place = row[x].lower()
-                    board.put_piece(y,board_x , piece_mapping[place](y,board_x ,"white"))
+                    board.put_piece(y, board_x, piece_mapping[place](y, board_x, "white"))
                     board_x += 1
             else:
                 board_x += int(row[x])
