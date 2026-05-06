@@ -1,9 +1,8 @@
 class Piece:
-    def __init__(self, x, y, name , color):
+    def __init__(self, y, x, color):
         self.x = x
         self.y = y
         self.color = color
-        self.name = name
         self.history = 0
 
 class Pawn(Piece):

@@ -7,3 +7,5 @@ class Board:
 
     def clear_square(self,y,x):
         self.board[y][x] = None
+
+    WhoMoves  = "white"
