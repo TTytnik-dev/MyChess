@@ -1,11 +1,10 @@
-import pieces
-from board import Board
-
+from app.src import pieces
+from app.src.board import Board
 
 def validate_fen(fen_string):
     blocks = fen_string.split(" ")
 
-    if len(blocks) < 2 or len( blocks) > 6:
+    if  not 2 <= len(blocks) <= 6:
         raise Exception("Invalid FEN string")
 
     parts =  blocks[0].split('/')
@@ -17,7 +16,7 @@ def validate_fen(fen_string):
         for pos in row:
             if pos.isalpha() and pos in "pnbrqkPNBRQK":
                 count += 1
-            elif pos.isdigit() and int(pos) < 9 and int(pos) > 0:
+            elif pos.isdigit() and 1 <= int(pos) <= 8:
                 count += int(pos)
             else:
                 raise Exception("Invalid FEN string")
