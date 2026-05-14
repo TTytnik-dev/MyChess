@@ -16,6 +16,8 @@ from app.src.pieces import Pawn, Rook, Knight, Bishop, Queen, King
     "rnbqknr/ppp1pppp/8/3p4/2PP4/8/PP2PPPP/RNBQKBNR b KkqK c3 0 2",
     "rnbqknr/ppp1pppp/8/3p4/2PP4/8/PP2PPPP/RNBQKBNR B KkqK c3 0 2",
     "rnbqknr/ppp1pppp/8/3p4/2PP4/8/PP2PPPP/RNBQKBNR Q KkqK c3 0 2",
+    "rnbqkpnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1",
+    "rnbqkbnr/pkpppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w - - 0 1",
 ])
 def test_invalid_fen(fen):
     with pytest.raises(Exception):

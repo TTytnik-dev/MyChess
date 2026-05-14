@@ -1,6 +1,4 @@
 from app.src import pieces
-from app.src.board import Board
-
 
 def validate_fen(fen_string):
     blocks = fen_string.split(" ")
@@ -11,6 +9,17 @@ def validate_fen(fen_string):
     parts = blocks[0].split('/')
     if len(parts) != 8:
         raise ValueError("A small number of rows on the board")
+
+    board_block = blocks[0]
+
+    if board_block.count("k") != 1:
+        raise Exception ("black king must be 1")
+    if board_block.count("K") != 1:
+        raise Exception ("white king must be 1")
+    if board_block.count("p") > 8:
+        raise Exception ("black pawns cant be more then 8")
+    if board_block.count("P") > 8:
+        raise Exception ("white pawns cant be more than 8")
 
     for row in parts:
         count = 0
@@ -65,6 +74,7 @@ def validate_fen(fen_string):
 
 
 def parse_fen(fen_string):
+    from app.src.board import Board
     validate_fen(fen_string)
     piece_mapping = {
         'p': pieces.Pawn,

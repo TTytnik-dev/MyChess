@@ -45,31 +45,27 @@ class Pawn(Piece):
     def get_valid_moves(self, board):
         valid_moves = []
         if self.color == "black":
-            step_forward = self.y + 1
-            if 2 <= step_forward <= 7 and board.board[step_forward][self.x] is None:
-                valid_moves.append([step_forward, self.x])
-            diagonal_steps = [(1, 1), (1, -1)]
-            for dy, dx in diagonal_steps:
-                new_x = self.x + dx
-                new_y = self.y + dy
-                if 0 <= new_x <= 7 and 2 <= new_y <= 7 and board.board[new_y][new_x] is not None and board.board[new_y][
-                    new_x].color != self.color:
-                    valid_moves.append([new_y, new_x])
-            if self.y == 1 and board.board[self.y + 2][self.x] is None and board.board[step_forward][self.x] is None:
-                valid_moves.append([self.y + 2, self.x])
+            direction = 1
+            start_y = 1
         else:
-            step_forward = self.y - 1
-            if 0 <= step_forward <= 5 and board.board[step_forward][self.x] is None:
-                valid_moves.append([step_forward, self.x])
-            diagonal_steps = [(-1, 1), (-1, -1)]
-            for dy, dx in diagonal_steps:
-                new_x = self.x + dx
-                new_y = self.y + dy
-                if 0 <= new_x <= 7 and 0 <= new_y <= 5 and board.board[new_y][new_x] is not None and board.board[new_y][
-                    new_x].color != self.color:
-                    valid_moves.append([new_y, new_x])
-            if self.y == 6 and board.board[self.y - 2][self.x] is None and board.board[step_forward][self.x] is None:
-                valid_moves.append([self.y - 2, self.x])
+            direction = -1
+            start_y = 6
+
+        step_forward = self.y + direction
+
+        if 0 <= step_forward <= 7 and board.board[step_forward][self.x] is None:
+            valid_moves.append([step_forward, self.x])
+
+        diagonal_steps = [(direction, 1), (direction, -1)]
+        for dy, dx in diagonal_steps:
+            new_x = self.x + dx
+            new_y = self.y + dy
+            if 0 <= new_x <= 7 and 0 <= new_y <= 7 and board.board[new_y][new_x] is not None and board.board[new_y][
+                new_x].color != self.color:
+                valid_moves.append([new_y, new_x])
+        if self.y == start_y and board.board[self.y + direction * 2][self.x] is None and board.board[step_forward][
+            self.x] is None:
+            valid_moves.append([self.y + direction * 2, self.x])
 
         return valid_moves
 
