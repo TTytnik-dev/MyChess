@@ -4,6 +4,9 @@ class Piece:
         self.y = y
         self.color = color
 
+    def get_valid_moves(self, board):
+        return []
+
     def sliding_moves(self, board, directions):
         start_x = self.x
         start_y = self.y

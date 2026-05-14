@@ -28,7 +28,7 @@ def test_initial_board_setup():
     start_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
     startBoard = parse_fen(start_fen)
 
-    assert startBoard.WhoMoves == "white"
+    assert startBoard.who_moves == "white"
 
     assert startBoard.board[0][0].color == "black"
     assert startBoard.board[7][7].color == "white"
@@ -38,7 +38,7 @@ def test_initial_board_setup():
     fen = "rnbqkbnr/pppp1ppp/8/4p3/5P2/8/PPPPP1PP/RNBQKBNR b KQkq f3 0 2"
     board = parse_fen(fen)
 
-    assert board.WhoMoves == "black"
+    assert board.who_moves == "black"
 
     e5_square = board.board[3][4]
     assert isinstance(e5_square, Pawn)

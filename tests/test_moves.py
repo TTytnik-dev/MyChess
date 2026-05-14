@@ -1,6 +1,7 @@
 import pytest
 from app.src.pieces import Pawn, Rook, Knight, Bishop, Queen, King
 from app.src.board import Board
+
 from app.src.fen import parse_fen
 
 def test_pawn_moves():

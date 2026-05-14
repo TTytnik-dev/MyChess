@@ -105,8 +105,8 @@ def parse_fen(fen_string):
     turns = fen_string.split(" ")[1]
 
     if turns == "w":
-        board.WhoMoves = "white"
+        board.who_moves = "white"
     else:
-        board.WhoMoves = "black"
+        board.who_moves = "black"
 
     return board
