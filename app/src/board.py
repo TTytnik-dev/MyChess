@@ -1,4 +1,4 @@
-from app.src.pieces import Piece
+from app.src.pieces import Piece, King
 
 class Board:
     def __init__(self):
@@ -43,3 +43,25 @@ class Board:
         piece.y = end_y
 
         return True
+
+    def is_in_check(self, color):
+        king_y, king_x = None, None
+        for y in range(8):
+            for x in range(8):
+                if isinstance(self.board[y][x], King) and self.board[y][x].color == color:
+                    king_y = y
+                    king_x = x
+                    break
+
+        if king_y is None:
+            raise Exception("King not found")
+
+        for y in range(8):
+            for x in range(8):
+                piece : Piece | None = self.board[y][x]
+                if piece is not None and piece.color != color:
+                    if [king_y, king_x] in piece.get_valid_moves(self):
+                        return True
+
+        return False
+
