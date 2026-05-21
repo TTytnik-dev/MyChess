@@ -93,3 +93,17 @@ class Board:
             piece.y = old_y
 
         return legal_moves
+
+    def check_game_over(self):
+        for y in range(8):
+            for x in range(8):
+                square = self.board[y][x]
+                if square is not  None and square.color == self.who_moves and self.get_legal_moves(y, x):
+                    return False
+
+        if self.is_in_check(self.who_moves):
+            print(f"game end {self.who_moves} lose")
+            return True
+        else:
+            print(f"draw, stalemate on the board")
+            return True
