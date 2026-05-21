@@ -1,9 +1,11 @@
-from app.src.pieces import Piece, King
+from app.src.pieces import Piece, King, Queen, Bishop, Knight, Rook, Pawn
+
 
 class Board:
     def __init__(self):
         self.board = [[None for _ in range(8)] for _ in range(8)]
         self.who_moves = "white"
+        self.en_passant_target = None
 
     def put_piece(self, y, x, piece):
         self.board[y][x] = piece
@@ -14,7 +16,7 @@ class Board:
     # def start_board(self):
     #     self.board = parse_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
 
-    def move_piece(self, start_y,start_x,end_y, end_x):
+    def move_piece(self, start_y,start_x,end_y, end_x,promotion = "q"):
 
         if start_y == end_y and start_x == end_x:
             raise Exception("Invalid move")
@@ -31,8 +33,13 @@ class Board:
         if [end_y, end_x] not in self.get_legal_moves(piece.y, piece.x):
             return False
 
+        is_en_passant = isinstance(piece, Pawn) and start_x != end_x and self.board[end_y][end_x] is None
+
         self.board[end_y][end_x] = piece
         self.board[start_y][start_x] = None
+
+        if is_en_passant:
+            self.board[start_y][end_x] = None
 
         if self.who_moves == "white":
             self.who_moves = "black"
@@ -41,6 +48,23 @@ class Board:
 
         piece.x = end_x
         piece.y = end_y
+
+        if isinstance(piece, Pawn):
+            if abs(start_y - end_y) == 2:
+                self.en_passant_target = self.board[end_y][end_x]
+            else:
+                self.en_passant_target = None
+            if (piece.color == "white" and  end_y == 0) or ( piece.color == "black" and end_y == 7):
+                if promotion == "q":
+                    self.board[end_y][end_x] = Queen(end_y, end_x, piece.color)
+                elif promotion == "b":
+                    self.board[end_y][end_x] = Bishop(end_y, end_x, piece.color)
+                elif promotion == "n":
+                    self.board[end_y][end_x] = Knight(end_y, end_x, piece.color)
+                elif promotion == "r":
+                    self.board[end_y][end_x] = Rook(end_y, end_x, piece.color)
+        else:
+            self.en_passant_target = None
 
         return True
 

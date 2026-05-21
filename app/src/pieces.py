@@ -48,9 +48,19 @@ class Pawn(Piece):
     def get_valid_moves(self, board):
         valid_moves = []
         if self.color == "black":
+            if self.y == 4:
+                if self.x + 1 <= 7 and board.board[self.y][self.x + 1] == board.en_passant_target:
+                    valid_moves.append([self.y + 1, self.x + 1])
+                elif self.x - 1 >= 0 and board.board[self.y][self.x - 1] == board.en_passant_target:
+                    valid_moves.append([self.y + 1 , self.x - 1])
             direction = 1
             start_y = 1
         else:
+            if self.y == 3:
+                if self.x + 1 <= 7 and board.board[self.y][self.x + 1] == board.en_passant_target:
+                    valid_moves.append([self.y - 1, self.x + 1])
+                elif self.x - 1 >=  0 and board.board[self.y][self.x - 1] == board.en_passant_target:
+                    valid_moves.append([self.y - 1 , self.x - 1])
             direction = -1
             start_y = 6
 
