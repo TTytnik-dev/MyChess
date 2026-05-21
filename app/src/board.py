@@ -28,7 +28,7 @@ class Board:
         if piece.color != self.who_moves:
             return False
 
-        if [end_y, end_x] not in piece.get_valid_moves(self):
+        if [end_y, end_x] not in self.get_legal_moves(piece.y, piece.x):
             return False
 
         self.board[end_y][end_x] = piece
@@ -65,3 +65,31 @@ class Board:
 
         return False
 
+    def get_legal_moves(self, piece_y ,piece_x ):
+        legal_moves = []
+
+        if self.board[piece_y][piece_x] is  None:
+            return legal_moves
+
+        piece = self.board[piece_y][piece_x]
+        for [y , x] in piece.get_valid_moves(self):
+
+            old_x = piece.x
+            old_y = piece.y
+            piece_type = self.board[y][x]
+
+            self.board[old_y][old_x] = None
+            self.board[y][x] = piece
+
+            piece.x = x
+            piece.y = y
+
+            if not self.is_in_check(piece.color):
+                    legal_moves.append([y, x])
+
+            self.board[old_y][old_x] = piece
+            self.board[y][x] = piece_type
+            piece.x = old_x
+            piece.y = old_y
+
+        return legal_moves
