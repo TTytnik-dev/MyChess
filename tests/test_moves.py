@@ -74,6 +74,7 @@ def test_knight_moves():
 
 def test_king_moves():
     test_board = parse_fen("r1bqkb1r/ppp1nppp/4p3/3pP3/3P4/5N2/PPP1KnPP/RNBQ3R w kq - 0 1")
+    test_board.board[6][4].was_moved = True
     moves = test_board.board[6][4].get_valid_moves(test_board)
 
     assert len(moves) == 6
@@ -84,4 +85,21 @@ def test_king_moves():
     assert [7, 5] in moves
     assert [5, 4] in moves
     assert [7, 4] in moves
+
+    test_board = parse_fen("r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w KQkq - 0 1")
+    moves = test_board.board[7][4].get_valid_moves(test_board)
+
+    assert len(moves) == 4
+    assert [7, 2] in moves
+    assert [7, 6] in moves
+    assert [7, 5] in moves
+    assert [7, 3] in moves
+
+    moves_2 = test_board.board[0][4].get_valid_moves(test_board)
+    assert len(moves) == 4
+    assert [0, 2] in moves_2
+    assert [0, 6] in moves_2
+    assert [0, 5] in moves_2
+    assert [0, 3] in moves_2
+
 

@@ -16,7 +16,7 @@ class Board:
     # def start_board(self):
     #     self.board = parse_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
 
-    def move_piece(self, start_y,start_x,end_y, end_x,promotion = "q"):
+    def move_piece(self, start_y,start_x,end_y, end_x, promotion = "q"):
 
         if start_y == end_y and start_x == end_x:
             raise Exception("Invalid move")
@@ -65,6 +65,30 @@ class Board:
         else:
             self.en_passant_target = None
 
+        if isinstance(piece, King):
+            if start_x - end_x == 2:
+                if piece.color == "white":
+                    rook = self.board[7][0]
+                    self.board[7][3] = rook
+                    self.board[7][0] = None
+                    rook.x = 3
+                else :
+                    rook = self.board[0][0]
+                    self.board[0][3] = rook
+                    self.board[0][0] = None
+                    rook.x = 3
+            elif start_x - end_x == -2:
+                if piece.color == "black":
+                    rook = self.board[0][7]
+                    self.board[0][5] = rook
+                    self.board[0][7] = None
+                    rook.x = 5
+                else:
+                    rook = self.board[7][7]
+                    self.board[7][5] = rook
+                    self.board[7][7] = None
+                    rook.x = 5
+
         piece.was_moved = True
 
         return True
@@ -103,6 +127,26 @@ class Board:
             old_y = piece.y
             piece_type = self.board[y][x]
 
+            if isinstance(piece, King) and abs(old_x - x) == 2:
+                if self.is_in_check(piece.color):
+                    continue
+
+                mid_x = (old_x + x) // 2
+
+                self.board[old_y][old_x] = None
+                self.board[old_y][mid_x] = piece
+                piece.x = mid_x
+
+                mid_safe = not self.is_in_check(piece.color)
+
+                piece.x = old_x
+                self.board[old_y][mid_x] = None
+                self.board[old_y][old_x] = piece
+
+                if not mid_safe:
+                    continue
+
+
             self.board[old_y][old_x] = None
             self.board[y][x] = piece
 
@@ -110,7 +154,7 @@ class Board:
             piece.y = y
 
             if not self.is_in_check(piece.color):
-                    legal_moves.append([y, x])
+                        legal_moves.append([y, x])
 
             self.board[old_y][old_x] = piece
             self.board[y][x] = piece_type

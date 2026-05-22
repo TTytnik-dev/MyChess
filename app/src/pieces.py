@@ -2,11 +2,11 @@ from numpy.ma.core import left_shift
 
 
 class Piece:
-    def __init__(self, y, x, color):
+    def __init__(self, y, x, color , was_moved = False ):
         self.x = x
         self.y = y
         self.color = color
-        self.was_moved = False
+        self.was_moved = was_moved
 
     def get_valid_moves(self, board):
         return []
@@ -92,7 +92,7 @@ class King(Piece):
 
     def get_valid_moves(self, board):
         valid_moves =  self.step_moves(board, self.directions)
-        if self.was_moved == False:
+        if not self.was_moved:
             if self.color == "black":
                 left_corner = board.board[0][0]
                 right_corner = board.board[0][7]
