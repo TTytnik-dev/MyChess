@@ -55,3 +55,37 @@ def test_initial_board_setup():
     b8_square = board.board[0][1]
     assert isinstance(b8_square, Knight)
     assert b8_square.color == "black"
+
+
+def test_castling_rights_parsing():
+    fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w Kq - 0 1"
+    board = parse_fen(fen)
+
+    assert(not board.board[7][7].was_moved)
+    assert(not board.board[7][4].was_moved)
+    assert board.board[7][0].was_moved
+
+
+    assert(not board.board[0][0].was_moved)
+    assert(not board.board[0][4].was_moved)
+    assert board.board[0][7].was_moved
+
+
+def test_en_passant_parsing():
+    fen = "rnbqkbnr/pppp1ppp/8/4p3/5P2/8/PPPPP1PP/RNBQKBNR b KQkq f3 0 2"
+    board = parse_fen(fen)
+
+    assert board.en_passant_target is not None
+    assert isinstance(board.en_passant_target, Pawn)
+
+    assert board.en_passant_target.color == "white"
+    assert board.en_passant_target.y == 4
+    assert board.en_passant_target.x == 5
+
+
+def test_game_counters():
+    fen = "rnbqkbnr/pppp1ppp/8/4p3/5P2/8/PPPPP1PP/RNBQKBNR b KQkq f3 14 25"
+    board = parse_fen(fen)
+
+    assert board.halfmove_clock == 14
+    assert board.fullmove_number == 25

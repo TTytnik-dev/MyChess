@@ -6,6 +6,8 @@ class Board:
         self.board = [[None for _ in range(8)] for _ in range(8)]
         self.who_moves = "white"
         self.en_passant_target = None
+        self.halfmove_clock = 0
+        self.fullmove_number = 1
 
     def put_piece(self, y, x, piece):
         self.board[y][x] = piece

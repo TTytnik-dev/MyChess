@@ -86,8 +86,9 @@ def parse_fen(fen_string):
     }
 
     board = Board()
+    blocks = fen_string.split(" ")
 
-    board_list = fen_string.split(" ")[0].split('/')
+    board_list = blocks[0].split('/')
     for y, row in enumerate(board_list):
         board_x = 0
         for x in range(len(row)):
@@ -102,11 +103,46 @@ def parse_fen(fen_string):
             else:
                 board_x += int(row[x])
 
-    turns = fen_string.split(" ")[1]
+
+    turns = blocks[1]
 
     if turns == "w":
         board.who_moves = "white"
     else:
         board.who_moves = "black"
+
+    if len(blocks ) >= 3:
+        castlings = blocks[2]
+
+        if "Q" not in castlings:
+            if  board.board[7][0] : board.board[7][0].was_moved = True
+        if "K" not in castlings:
+            if board.board[7][7] : board.board[7][7].was_moved = True
+        if "Q" not in castlings and "K" not in castlings:
+            if board.board[7][4] : board.board[7][4].was_moved = True
+
+        if "q" not in castlings:
+            if board.board[0][0] : board.board[0][0].was_moved = True
+        if "k" not in castlings:
+            if  board.board[0][7] : board.board[0][7].was_moved = True
+        if "q" not in castlings and "k" not in castlings:
+            if board.board[0][4] : board.board[0][4].was_moved = True
+
+
+
+    if len(blocks) >= 4:
+        ep = blocks[3]
+        if ep != "-":
+            x = ord(ep[0]) - ord('a')
+            ep_y = 8 - int(ep[1])
+            pawn_y = 4 if ep_y == 5 else 3
+            if board.board[pawn_y][x]:
+                board.en_passant_target = board.board[pawn_y][x]
+
+    if len(blocks) >= 5:
+        board.halfmove_clock = int(blocks[4])
+
+    if len(blocks) >= 6:
+        board.fullmove_number = int(blocks[5])
 
     return board
