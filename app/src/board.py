@@ -48,7 +48,6 @@ class Board:
 
         piece.x = end_x
         piece.y = end_y
-
         if isinstance(piece, Pawn):
             if abs(start_y - end_y) == 2:
                 self.en_passant_target = self.board[end_y][end_x]
@@ -65,6 +64,8 @@ class Board:
                     self.board[end_y][end_x] = Rook(end_y, end_x, piece.color)
         else:
             self.en_passant_target = None
+
+        piece.was_moved = True
 
         return True
 

@@ -1,8 +1,12 @@
+from numpy.ma.core import left_shift
+
+
 class Piece:
     def __init__(self, y, x, color):
         self.x = x
         self.y = y
         self.color = color
+        self.was_moved = False
 
     def get_valid_moves(self, board):
         return []
@@ -87,7 +91,29 @@ class King(Piece):
     directions = [(1, 1), (1, -1), (1, 0), (-1, 1), (0, 1), (0, -1), (-1, 0), (-1, -1)]
 
     def get_valid_moves(self, board):
-        return self.step_moves(board, self.directions)
+        valid_moves =  self.step_moves(board, self.directions)
+        if self.was_moved == False:
+            if self.color == "black":
+                left_corner = board.board[0][0]
+                right_corner = board.board[0][7]
+                if isinstance(left_corner, Rook) and left_corner.color == self.color and left_corner.was_moved == False:
+                    if board.board[0][1] is None and board.board[0][2] is None and board.board[0][3] is None:
+                        valid_moves.append([0, 2])
+                if isinstance(right_corner, Rook) and right_corner.color == self.color and right_corner.was_moved == False:
+                    if board.board[0][6] is None and board.board[0][5] is None:
+                        valid_moves.append([0, 6])
+            else:
+                left_corner = board.board[7][0]
+                right_corner = board.board[7][7]
+                if isinstance(left_corner, Rook) and left_corner.color == self.color and left_corner.was_moved == False:
+                    if board.board[7][1] is None and board.board[7][2] is None and board.board[7][3] is None:
+                        valid_moves.append([7, 2])
+                if isinstance(right_corner,
+                              Rook) and right_corner.color == self.color and right_corner.was_moved == False:
+                    if board.board[7][6] is None and board.board[7][5] is None:
+                        valid_moves.append([7, 6])
+
+        return valid_moves
 
 
 class Queen(Piece):

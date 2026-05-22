@@ -21,6 +21,13 @@ def test_pawn_moves():
     moves_3 = test_board.board[6][1].get_valid_moves(test_board)
     assert len(moves_3) == 0
 
+    test_board = parse_fen("rnbqkbnr/ppppp1pp/8/4Pp2/8/8/PPPP1PPP/RNBQKBNR w KQkq - 0 1")
+    test_board.en_passant_target = test_board.board[3][5]
+    moves_4= test_board.board[3][4].get_valid_moves(test_board)
+    assert len(moves_4) == 2
+    assert [2, 4] in moves_4
+    assert [2, 5] in moves_4
+
 def test_queen_moves():
     test_board = parse_fen("rn2kb1r/pp2pppp/2p5/3q1b2/8/3P4/PPP2PPP/R1BQKBNR w KQkq - 0 1")
     moves = test_board.board[3][3].get_valid_moves(test_board)
