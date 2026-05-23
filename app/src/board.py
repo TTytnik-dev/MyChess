@@ -8,6 +8,7 @@ class Board:
         self.en_passant_target = None
         self.halfmove_clock = 0
         self.fullmove_number = 1
+        self.game_over_status = None
 
     def put_piece(self, y, x, piece):
         self.board[y][x] = piece
@@ -173,8 +174,14 @@ class Board:
                     return False
 
         if self.is_in_check(self.who_moves):
-            print(f"game end {self.who_moves} lose")
+            if self.who_moves == "white":
+                self.game_over_status = "black_win_checkmate"
+                print("Check! Black won.")
+            else:
+                self.game_over_status = "white_win_checkmate"
+                print("Check! White won.")
             return True
         else:
-            print(f"draw, stalemate on the board")
+            self.game_over_status = "draw_stalemate"
+            print("Stalemate! Stalemate on board.")
             return True

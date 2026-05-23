@@ -6,7 +6,9 @@ from app.src.pieces import King
 
 IMAGES = {}
 
-WIDTH, HEIGHT = 800, 800
+HEIGHT = 800
+UI_WIDTH = 250
+WIDTH = 800 + UI_WIDTH
 SQ_Size = 800 // 8
 LIGHT = (240, 217, 181)
 DARK = (181, 136, 99)
@@ -60,6 +62,38 @@ def draw_hints(screen, valid_moves):
         pygame.draw.circle(screen, (169, 169, 169), (center_x, center_y), SQ_Size // 10)
 
 
+
+def draw_selected_highlight(screen, selected_square):
+    if selected_square is not None:
+        y, x = selected_square
+        highlight_color = (255, 226, 142)
+        pygame.draw.rect(screen, highlight_color, pygame.Rect(x * SQ_Size, y * SQ_Size, SQ_Size, SQ_Size))
+
+
+def draw_turn_indicator(screen, board):
+    if hasattr(board, 'game_over_status') and board.game_over_status:
+        return
+
+    pygame.font.init()
+    font = pygame.font.SysFont('Arial', 28, bold=True)
+
+    if board.who_moves == "white":
+        text = " White's Turn "
+        text_color = (0, 0, 0)
+        bg_color = (240, 217, 181)
+    else:
+        text = " Black's Turn "
+        text_color = (255, 255, 255)
+        bg_color = (181, 136, 99)
+
+    text_surface = font.render(text, True, text_color)
+
+    ui_x_start = HEIGHT + 20
+    bg_rect = pygame.Rect(ui_x_start, 20, text_surface.get_width() + 20, text_surface.get_height() + 20)
+
+    pygame.draw.rect(screen, bg_color, bg_rect, border_radius=5)
+    screen.blit(text_surface, (ui_x_start + 10, 30))
+
 def draw_check_highlight(screen, board):
     current_color = board.who_moves
 
@@ -78,7 +112,36 @@ def draw_check_highlight(screen, board):
         pygame.draw.rect(screen, (255, 0, 0), red_square_rect)
 
 
+def draw_game_over_screen(screen, board):
+    if  board.game_over_status:
+        status = board.game_over_status
+        message = ""
+        if status == "white_win_checkmate":
+            message = "Checkmate! White wins."
+        elif status == "black_win_checkmate":
+            message = "Checkmate! Black wins."
+        elif status == "draw_stalemate":
+            message = "Draw! Stalemate on the board."
+        elif status == "draw_insufficient_material":
+            message = "Draw (insufficient material)."
+        elif status == "draw_fifty_move_rule":
+            message = "Draw (50-move rule)."
+        elif status == "draw_threefold_repetition":
+            message = "Draw (threefold repetition)."
+        else:
+            message = "Game Over."
 
+        overlay = pygame.Surface((WIDTH, HEIGHT))
+        overlay.set_alpha(180)
+        overlay.fill((0, 0, 0))
+        screen.blit(overlay, (0, 0))
+
+        pygame.font.init()
+        font = pygame.font.SysFont('Arial', 48, bold=True)
+        text_surface = font.render(message, True, (255, 255, 255))
+
+        text_rect = text_surface.get_rect(center=(WIDTH // 2, HEIGHT // 2))
+        screen.blit(text_surface, text_rect)
 
 def main():
     pygame.init()
@@ -97,10 +160,12 @@ def main():
                 sys.exit()
 
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                if game_board.check_game_over():
+                if game_board.game_over_status:
                     continue
 
                 mouse_x, mouse_y = pygame.mouse.get_pos()
+                if mouse_x >= HEIGHT:
+                    continue
                 x = mouse_x // SQ_Size
                 y = mouse_y // SQ_Size
 
@@ -110,6 +175,7 @@ def main():
                         game_board.move_piece(start_y, start_x, y, x)
                         selected_square = None
                         valid_moves = []
+                        game_board.check_game_over()
                     else:
                         piece = game_board.board[y][x]
                         if piece and piece.color == game_board.who_moves:
@@ -125,10 +191,14 @@ def main():
                         selected_square = (y, x)
                         valid_moves = game_board.get_legal_moves(y, x)
 
+        screen.fill((40, 40, 40))
         draw_board(screen)
+        draw_selected_highlight(screen, selected_square)
         draw_check_highlight(screen, game_board)
         draw_pieces(screen, game_board)
         draw_hints(screen, valid_moves)
+        draw_turn_indicator(screen, game_board)
+        draw_game_over_screen(screen, game_board)
         pygame.display.flip()
 
 
