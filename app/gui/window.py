@@ -1,8 +1,10 @@
 import pygame
 import sys
 import os
-from app.src.fen import parse_fen
 from app.src.pieces import King
+from app.src.fen import parse_fen, board_to_fen
+import argparse
+import random
 
 IMAGES = {}
 
@@ -94,6 +96,26 @@ def draw_turn_indicator(screen, board):
     pygame.draw.rect(screen, bg_color, bg_rect, border_radius=5)
     screen.blit(text_surface, (ui_x_start + 10, 30))
 
+
+def draw_history_indicator(screen, viewing_history, current_index, max_index):
+    if not viewing_history:
+        return
+
+    pygame.font.init()
+    font_main = pygame.font.SysFont('Arial', 24, bold=True)
+    font_sub = pygame.font.SysFont('Arial', 18)
+
+    text_main = font_main.render("VIEWING HISTORY", True, (255, 50, 50))
+
+    text_sub = font_sub.render(f"Move: {current_index} / {max_index}", True, (200, 200, 200))
+
+    ui_x = HEIGHT + 20
+    ui_y_main = 100
+    ui_y_sub = 130
+
+    screen.blit(text_main, (ui_x, ui_y_main))
+    screen.blit(text_sub, (ui_x, ui_y_sub))
+
 def draw_check_highlight(screen, board):
     current_color = board.who_moves
 
@@ -143,24 +165,62 @@ def draw_game_over_screen(screen, board):
         text_rect = text_surface.get_rect(center=(WIDTH // 2, HEIGHT // 2))
         screen.blit(text_surface, text_rect)
 
-def main():
+def main(play_vs_bot = False):
     pygame.init()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     load_images()
 
     game_board = parse_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
 
+    move_history = [board_to_fen(game_board)]
+    current_history_index = 0
+    viewing_history = False
+
     selected_square = None
     valid_moves = []
 
     while True:
+        if play_vs_bot and game_board.who_moves == "black" and not game_board.game_over_status and not viewing_history:
+            all_possible_moves = []
+            for y in range(8):
+                for x in range(8):
+                    piece = game_board.board[y][x]
+                    if piece and piece.color == "black":
+                        moves = game_board.get_legal_moves(y, x)
+                        for target_y, target_x in moves:
+                            all_possible_moves.append((y, x, target_y, target_x))
+
+            if all_possible_moves:
+                pygame.time.delay(500)
+
+                start_y, start_x, end_y, end_x = random.choice(all_possible_moves)
+                game_board.move_piece(start_y, start_x, end_y, end_x)
+                game_board.check_game_over()
+
+                new_fen = board_to_fen(game_board)
+                move_history.append(new_fen)
+                current_history_index = len(move_history) - 1
+
+                pygame.event.clear()
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
 
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_LEFT:
+                    if current_history_index > 0:
+                        current_history_index -= 1
+                        viewing_history = True
+                elif event.key == pygame.K_RIGHT:
+                    if current_history_index < len(move_history) - 1:
+                        current_history_index += 1
+                        if current_history_index == len(move_history) - 1:
+                            viewing_history = False
+
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                if game_board.game_over_status:
+                if game_board.game_over_status or viewing_history:
                     continue
 
                 mouse_x, mouse_y = pygame.mouse.get_pos()
@@ -176,6 +236,11 @@ def main():
                         selected_square = None
                         valid_moves = []
                         game_board.check_game_over()
+
+                        new_fen = board_to_fen(game_board)
+                        move_history.append(new_fen)
+                        current_history_index = len(move_history) - 1
+                        viewing_history = False
                     else:
                         piece = game_board.board[y][x]
                         if piece and piece.color == game_board.who_moves:
@@ -191,16 +256,28 @@ def main():
                         selected_square = (y, x)
                         valid_moves = game_board.get_legal_moves(y, x)
 
+        if viewing_history:
+            board_to_draw = parse_fen(move_history[current_history_index])
+            selected_square = None
+            valid_moves = []
+        else:
+            board_to_draw = game_board
+
         screen.fill((40, 40, 40))
         draw_board(screen)
         draw_selected_highlight(screen, selected_square)
-        draw_check_highlight(screen, game_board)
-        draw_pieces(screen, game_board)
+        draw_check_highlight(screen, board_to_draw)
+        draw_pieces(screen, board_to_draw)
         draw_hints(screen, valid_moves)
-        draw_turn_indicator(screen, game_board)
-        draw_game_over_screen(screen, game_board)
+        draw_turn_indicator(screen, board_to_draw)
+        draw_history_indicator(screen, viewing_history, current_history_index, len(move_history) - 1)
+        draw_game_over_screen(screen, board_to_draw)
         pygame.display.flip()
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Start game MyChess")
     main()
+    parser.add_argument('--bot', action='store_true', help="Play vs AI (за черных)")
+    args = parser.parse_args()
+    main(play_vs_bot=args.bot)

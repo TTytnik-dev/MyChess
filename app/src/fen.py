@@ -146,3 +146,37 @@ def parse_fen(fen_string):
         board.fullmove_number = int(blocks[5])
 
     return board
+
+
+def board_to_fen(board):
+    fen = ""
+    for y in range(8):
+        empty_count = 0
+        for x in range(8):
+            piece = board.board[y][x]
+            if piece is None:
+                empty_count += 1
+            else:
+                if empty_count > 0:
+                    fen += str(empty_count)
+                    empty_count = 0
+
+                p_type = type(piece).__name__
+                char = 'n' if p_type == 'Knight' else p_type[0].lower()
+
+                if piece.color == "white":
+                    fen += char.upper()
+                else:
+                    fen += char.lower()
+
+        if empty_count > 0:
+            fen += str(empty_count)
+        if y < 7:
+            fen += "/"
+
+    fen += " " + ("w" if board.who_moves == "white" else "b")
+
+    fen += " - - 0 1"
+
+    return fen
+
