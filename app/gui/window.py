@@ -5,6 +5,8 @@ from app.src.pieces import King
 from app.src.fen import parse_fen, board_to_fen
 import argparse
 import random
+import time
+import subprocess
 
 IMAGES = {}
 
@@ -71,6 +73,10 @@ def draw_selected_highlight(screen, selected_square):
         highlight_color = (255, 226, 142)
         pygame.draw.rect(screen, highlight_color, pygame.Rect(x * SQ_Size, y * SQ_Size, SQ_Size, SQ_Size))
 
+def draw_hover_highlight(screen, hover_y, hover_x):
+    if hover_y is not None and hover_x is not None:
+        rect = pygame.Rect(hover_x * SQ_Size, hover_y * SQ_Size, SQ_Size, SQ_Size)
+        pygame.draw.rect(screen, (255, 255, 255), rect, 4)
 
 def draw_turn_indicator(screen, board):
     if hasattr(board, 'game_over_status') and board.game_over_status:
@@ -173,6 +179,56 @@ def draw_check_highlight(screen, board):
         red_square_rect = pygame.Rect(king_x * SQ_Size, king_y * SQ_Size, SQ_Size, SQ_Size)
         pygame.draw.rect(screen, (255, 0, 0), red_square_rect)
 
+def draw_load_fen_button(screen):
+    pygame.font.init()
+    font = pygame.font.SysFont('Arial', 20, bold=True)
+
+    button_rect = pygame.Rect(HEIGHT + 20, 340, 160, 40)
+
+    mouse_pos = pygame.mouse.get_pos()
+    if button_rect.collidepoint(mouse_pos):
+        color = (100, 100, 100)
+    else:
+        color = (70, 70, 70)
+    pygame.draw.rect(screen, color, button_rect, border_radius=5)
+
+    text_surface = font.render("LOAD FEN", True, (255, 255, 255))
+    text_rect = text_surface.get_rect(center=button_rect.center)
+    screen.blit(text_surface, text_rect)
+
+    return button_rect
+
+def draw_fen_input_overlay(screen, text, error=False, selected=False):
+    overlay = pygame.Surface((WIDTH, HEIGHT))
+    overlay.set_alpha(220)
+    overlay.fill((0, 0, 0))
+    screen.blit(overlay, (0, 0))
+
+    pygame.font.init()
+    title_font = pygame.font.SysFont('Arial', 32, bold=True)
+    input_font = pygame.font.SysFont('Courier', 20)
+    error_font = pygame.font.SysFont('Arial', 24, bold=True)
+
+    title = title_font.render("Enter FEN String (ENTER to load, ESC to cancel):", True, (255, 255, 255))
+    screen.blit(title, (WIDTH // 2 - title.get_width() // 2, HEIGHT // 2 - 80))
+
+    input_box = pygame.Rect(50, HEIGHT // 2 - 20, WIDTH - 100, 50)
+    pygame.draw.rect(screen, (50, 50, 50), input_box)
+    pygame.draw.rect(screen, (255, 255, 255), input_box, 2)
+
+    if selected and text:
+        text_width, text_height = input_font.size(text)
+        highlight_rect = pygame.Rect(input_box.x + 10, input_box.y + 12, text_width, text_height)
+        pygame.draw.rect(screen, (0, 120, 215), highlight_rect)
+
+    cursor = "|" if int(time.time() * 2) % 2 == 0 and not selected else ""
+
+    txt_surface = input_font.render(text + cursor, True, (255, 255, 255))
+    screen.blit(txt_surface, (input_box.x + 10, input_box.y + 12))
+
+    if error:
+        err_txt = error_font.render("Invalid FEN! Please check the syntax.", True, (255, 80, 80))
+        screen.blit(err_txt, (WIDTH // 2 - err_txt.get_width() // 2, HEIGHT // 2 + 50))
 
 def draw_game_over_screen(screen, board):
     if  board.game_over_status:
@@ -257,6 +313,13 @@ def get_promotion_choice(screen, color):
 def main(play_vs_bot = False):
     pygame.init()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
+    pygame.key.set_repeat(400, 50)
+
+    try:
+        pygame.scrap.init()
+    except Exception as e:
+        print(f"Clipboard not available: {e}")
+
     load_images()
 
     game_board = parse_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
@@ -273,6 +336,10 @@ def main(play_vs_bot = False):
 
     TIMER_EVENT = pygame.USEREVENT + 1
     pygame.time.set_timer(TIMER_EVENT, 1000)
+    inputting_fen = False
+    fen_text = ""
+    fen_error = False
+    fen_selected = False
 
     while True:
         if play_vs_bot and game_board.who_moves == "black" and not game_board.game_over_status and not viewing_history:
@@ -302,6 +369,94 @@ def main(play_vs_bot = False):
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+
+            if inputting_fen:
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_a and (event.mod & (pygame.KMOD_CTRL | pygame.KMOD_META)):
+                        fen_selected = True
+                        continue
+                    if fen_selected and event.unicode.isprintable() and event.key not in (pygame.K_RETURN, pygame.K_ESCAPE, pygame.K_BACKSPACE):
+                        fen_text = event.unicode
+                        fen_selected = False
+                        fen_error = False
+                        continue
+                    if event.key == pygame.K_RETURN:
+                        try:
+                            new_board = parse_fen(fen_text.strip())
+                            game_board = new_board
+                            move_history = [board_to_fen(game_board)]
+                            current_history_index = 0
+                            viewing_history = False
+                            selected_square = None
+                            valid_moves = []
+                            white_time = 600
+                            black_time = 600
+                            inputting_fen = False
+                            fen_error = False
+                        except Exception as e:
+                            fen_error = True
+                    elif event.key == pygame.K_ESCAPE:
+                        inputting_fen = False
+                        fen_error = False
+                    elif event.key == pygame.K_BACKSPACE:
+                        if fen_selected:
+                            fen_text = ""
+                            fen_selected = False
+                        else:
+                            fen_text = fen_text[:-1]
+
+                        fen_error = False
+                    elif event.key == pygame.K_v and (event.mod & (pygame.KMOD_CTRL | pygame.KMOD_META)):
+                        pasted = ""
+                        try:
+                            if pygame.scrap.get_init():
+                                for t in (pygame.SCRAP_TEXT, "UTF8_STRING", "text/plain;charset=utf-8"):
+                                    try:
+                                        clip = pygame.scrap.get(t)
+                                        if clip:
+                                            pasted = clip.decode("utf-8", errors="ignore").replace("\x00", "").strip()
+                                            if pasted:
+                                                break
+                                    except Exception:
+                                        pass
+                        except Exception:
+                            pass
+
+                        if not pasted:
+                            try:
+                                pasted = subprocess.check_output(
+                                    ["powershell.exe", "-NoProfile", "-Command", "Get-Clipboard -Raw"],
+                                    text=True
+                                ).strip()
+                            except Exception:
+                                try:
+                                    pasted = subprocess.check_output(["wl-paste", "-n"], text=True).strip()
+                                except Exception:
+                                    try:
+                                        pasted = subprocess.check_output(
+                                            ["xclip", "-selection", "clipboard", "-o"],
+                                            text=True
+                                        ).strip()
+                                    except Exception:
+                                        pasted = ""
+
+                        if pasted:
+                            if fen_selected:
+                                fen_text = pasted
+                                fen_selected = False
+                            else:
+                                fen_text += pasted
+                        fen_error = False
+                    else:
+                        if event.unicode.isprintable():
+                            if fen_selected:
+                                fen_text = event.unicode
+                                fen_selected = False
+                            else:
+                                fen_text += event.unicode
+
+                            fen_error = False
+                continue
 
             elif event.type == TIMER_EVENT:
                 if not game_board.game_over_status:
@@ -342,6 +497,14 @@ def main(play_vs_bot = False):
                         viewing_history = False
                         selected_square = None
                         valid_moves = []
+                    continue
+
+                load_fen_button_rect = pygame.Rect(HEIGHT + 20, 340, 160, 40)
+                if load_fen_button_rect.collidepoint((mouse_x, mouse_y)):
+                    inputting_fen = True
+                    fen_text = ""
+                    fen_error = False
+                    fen_selected = False
                     continue
 
                 if game_board.game_over_status or viewing_history:
@@ -399,17 +562,28 @@ def main(play_vs_bot = False):
         else:
             board_to_draw = game_board
 
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+        hover_y, hover_x = None, None
+        if mouse_x < HEIGHT and not viewing_history and not game_board.game_over_status and not inputting_fen:
+            hover_y = mouse_y // SQ_Size
+            hover_x = mouse_x // SQ_Size
+
         screen.fill((40, 40, 40))
         draw_board(screen)
         draw_selected_highlight(screen, selected_square)
         draw_check_highlight(screen, board_to_draw)
         draw_pieces(screen, board_to_draw)
+        draw_hover_highlight(screen, hover_y, hover_x)
         draw_hints(screen, valid_moves)
         draw_turn_indicator(screen, board_to_draw)
         draw_history_indicator(screen, viewing_history, current_history_index, len(move_history) - 1)
         draw_timers(screen, white_time, black_time)
         draw_undo_button(screen)
+        draw_load_fen_button(screen)
         draw_game_over_screen(screen, board_to_draw)
+        if inputting_fen:
+            draw_fen_input_overlay(screen, fen_text, fen_error, fen_selected)
+
         pygame.display.flip()
 
 
