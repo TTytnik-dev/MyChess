@@ -116,6 +116,46 @@ def draw_history_indicator(screen, viewing_history, current_index, max_index):
     screen.blit(text_main, (ui_x, ui_y_main))
     screen.blit(text_sub, (ui_x, ui_y_sub))
 
+
+def draw_timers(screen, white_time, black_time):
+    pygame.font.init()
+    font = pygame.font.SysFont('Arial', 24, bold=True)
+
+    def format_time(seconds):
+        if seconds < 0: seconds = 0
+        minutes = seconds // 60
+        secs = seconds % 60
+        return f"{minutes:02d}:{secs:02d}"
+
+    white_text = font.render(f"White: {format_time(white_time)}", True, (255, 255, 255))
+    black_text = font.render(f"Black: {format_time(black_time)}", True, (200, 200, 200))
+
+    ui_x = HEIGHT + 20
+    screen.blit(white_text, (ui_x, 180))
+    screen.blit(black_text, (ui_x, 220))
+
+
+def draw_undo_button(screen):
+    pygame.font.init()
+    font = pygame.font.SysFont('Arial', 20, bold=True)
+
+    button_rect = pygame.Rect(HEIGHT + 20, 280, 160, 40)
+
+    mouse_pos = pygame.mouse.get_pos()
+    if button_rect.collidepoint(mouse_pos):
+        color = (100, 100, 100)
+    else:
+         color =  (70, 70, 70)
+
+
+    pygame.draw.rect(screen, color, button_rect, border_radius=5)
+
+    text_surface = font.render("UNDO MOVE", True, (255, 255, 255))
+    text_rect = text_surface.get_rect(center=button_rect.center)
+    screen.blit(text_surface, text_rect)
+
+    return button_rect
+
 def draw_check_highlight(screen, board):
     current_color = board.who_moves
 
@@ -150,6 +190,10 @@ def draw_game_over_screen(screen, board):
             message = "Draw (50-move rule)."
         elif status == "draw_threefold_repetition":
             message = "Draw (threefold repetition)."
+        elif status == "white_win_timeout":
+            message = "Time out! White wins."
+        elif status == "black_win_timeout":
+            message = "Time out! Black wins."
         else:
             message = "Game Over."
 
@@ -165,6 +209,51 @@ def draw_game_over_screen(screen, board):
         text_rect = text_surface.get_rect(center=(WIDTH // 2, HEIGHT // 2))
         screen.blit(text_surface, text_rect)
 
+
+def get_promotion_choice(screen, color):
+    overlay = pygame.Surface((WIDTH, HEIGHT))
+    overlay.set_alpha(200)
+    overlay.fill((0, 0, 0))
+    screen.blit(overlay, (0, 0))
+
+    pieces_to_choose = ['Q', 'R', 'B', 'N']
+    if color == "white":
+        prefix = 'w'
+    else:
+        prefix = 'b'
+
+    panel_width = 4 * SQ_Size + 50
+    panel_height = SQ_Size + 20
+    start_x = (HEIGHT - panel_width) // 2
+    start_y = (HEIGHT - panel_height) // 2
+
+    pygame.draw.rect(screen, (200, 200, 200), (start_x, start_y, panel_width, panel_height), border_radius=10)
+
+    clickable_rects = []
+    for i, p in enumerate(pieces_to_choose):
+        img_key = prefix + p
+        img = IMAGES[img_key]
+
+        rect = pygame.Rect(start_x + 25 + i * SQ_Size, start_y + 10, SQ_Size, SQ_Size)
+        screen.blit(img, rect)
+
+        clickable_rects.append((rect, p.lower()))
+
+    pygame.display.flip()
+
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = pygame.mouse.get_pos()
+                for rect, choice in clickable_rects:
+                    if rect.collidepoint(mouse_pos):
+                        return choice
+
+
 def main(play_vs_bot = False):
     pygame.init()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -178,6 +267,12 @@ def main(play_vs_bot = False):
 
     selected_square = None
     valid_moves = []
+
+    white_time = 600
+    black_time = 600
+
+    TIMER_EVENT = pygame.USEREVENT + 1
+    pygame.time.set_timer(TIMER_EVENT, 1000)
 
     while True:
         if play_vs_bot and game_board.who_moves == "black" and not game_board.game_over_status and not viewing_history:
@@ -208,6 +303,17 @@ def main(play_vs_bot = False):
                 pygame.quit()
                 sys.exit()
 
+            elif event.type == TIMER_EVENT:
+                if not game_board.game_over_status:
+                    if game_board.who_moves == "white":
+                        white_time -= 1
+                        if white_time <= 0:
+                            game_board.game_over_status = "black_win_timeout"
+                    else:
+                        black_time -= 1
+                        if black_time <= 0:
+                            game_board.game_over_status = "white_win_timeout"
+
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT:
                     if current_history_index > 0:
@@ -220,19 +326,49 @@ def main(play_vs_bot = False):
                             viewing_history = False
 
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                if game_board.game_over_status or viewing_history:
+                mouse_x, mouse_y = pygame.mouse.get_pos()
+
+                undo_button_rect = pygame.Rect(HEIGHT + 20, 280, 160, 40)
+                if undo_button_rect.collidepoint((mouse_x, mouse_y)):
+                    if play_vs_bot:
+                        steps_to_undo = 2
+                    else:
+                        steps_to_undo = 1
+                    if len(move_history) > steps_to_undo:
+                        for _ in range(steps_to_undo):
+                            move_history.pop()
+                        current_history_index = len(move_history) - 1
+                        game_board = parse_fen(move_history[current_history_index])
+                        viewing_history = False
+                        selected_square = None
+                        valid_moves = []
                     continue
 
-                mouse_x, mouse_y = pygame.mouse.get_pos()
+                if game_board.game_over_status or viewing_history:
+                    continue
                 if mouse_x >= HEIGHT:
                     continue
+
                 x = mouse_x // SQ_Size
                 y = mouse_y // SQ_Size
 
                 if selected_square:
                     start_y, start_x = selected_square
                     if [y, x] in valid_moves:
-                        game_board.move_piece(start_y, start_x, y, x)
+
+                        moving_piece = game_board.board[start_y][start_x]
+                        is_promotion = False
+
+                        if moving_piece and type(moving_piece).__name__ == "Pawn":
+                            if (moving_piece.color == "white" and y == 0) or (moving_piece.color == "black" and y == 7):
+                                is_promotion = True
+
+                        if is_promotion:
+                            promo_choice = get_promotion_choice(screen, moving_piece.color)
+                            game_board.move_piece(start_y, start_x, y, x, promotion=promo_choice)
+                        else:
+                            game_board.move_piece(start_y, start_x, y, x)
+
                         selected_square = None
                         valid_moves = []
                         game_board.check_game_over()
@@ -271,13 +407,14 @@ def main(play_vs_bot = False):
         draw_hints(screen, valid_moves)
         draw_turn_indicator(screen, board_to_draw)
         draw_history_indicator(screen, viewing_history, current_history_index, len(move_history) - 1)
+        draw_timers(screen, white_time, black_time)
+        draw_undo_button(screen)
         draw_game_over_screen(screen, board_to_draw)
         pygame.display.flip()
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Start game MyChess")
-    main()
     parser.add_argument('--bot', action='store_true', help="Play vs AI (за черных)")
     args = parser.parse_args()
     main(play_vs_bot=args.bot)
