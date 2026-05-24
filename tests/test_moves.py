@@ -6,7 +6,9 @@ from app.src.fen import parse_fen
 
 
 def test_pawn_moves():
-    test_board = parse_fen("rnbqkbnr/p1p1p1pp/8/8/3p4/1p3p2/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
+    test_board = parse_fen(
+        "rnbqkbnr/p1p1p1pp/8/8/3p4/1p3p2/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+    )
 
     moves_1 = test_board.board[6][4].get_valid_moves(test_board)
 
@@ -22,7 +24,9 @@ def test_pawn_moves():
     moves_3 = test_board.board[6][1].get_valid_moves(test_board)
     assert len(moves_3) == 0
 
-    test_board = parse_fen("rnbqkbnr/ppppp1pp/8/4Pp2/8/8/PPPP1PPP/RNBQKBNR w KQkq - 0 1")
+    test_board = parse_fen(
+        "rnbqkbnr/ppppp1pp/8/4Pp2/8/8/PPPP1PPP/RNBQKBNR w KQkq - 0 1"
+    )
     test_board.en_passant_target = test_board.board[3][5]
     moves_4 = test_board.board[3][4].get_valid_moves(test_board)
     assert len(moves_4) == 2
@@ -31,7 +35,9 @@ def test_pawn_moves():
 
 
 def test_queen_moves():
-    test_board = parse_fen("rn2kb1r/pp2pppp/2p5/3q1b2/8/3P4/PPP2PPP/R1BQKBNR w KQkq - 0 1")
+    test_board = parse_fen(
+        "rn2kb1r/pp2pppp/2p5/3q1b2/8/3P4/PPP2PPP/R1BQKBNR w KQkq - 0 1"
+    )
     moves = test_board.board[3][3].get_valid_moves(test_board)
 
     assert len(moves) == 16
@@ -68,7 +74,9 @@ def test_bishop_moves():
 
 
 def test_knight_moves():
-    test_board = parse_fen("r1bqkb1r/ppp1nppp/2n1p3/3pP3/3P4/5N2/PPP2PPP/RNBQKB1R w KQkq - 0 1")
+    test_board = parse_fen(
+        "r1bqkb1r/ppp1nppp/2n1p3/3pP3/3P4/5N2/PPP2PPP/RNBQKB1R w KQkq - 0 1"
+    )
     moves = test_board.board[2][2].get_valid_moves(test_board)
     assert len(moves) == 5
     assert [0, 1] in moves
@@ -79,7 +87,9 @@ def test_knight_moves():
 
 
 def test_king_moves():
-    test_board = parse_fen("r1bqkb1r/ppp1nppp/4p3/3pP3/3P4/5N2/PPP1KnPP/RNBQ3R w kq - 0 1")
+    test_board = parse_fen(
+        "r1bqkb1r/ppp1nppp/4p3/3pP3/3P4/5N2/PPP1KnPP/RNBQ3R w kq - 0 1"
+    )
     test_board.board[6][4].was_moved = True
     moves = test_board.board[6][4].get_valid_moves(test_board)
 

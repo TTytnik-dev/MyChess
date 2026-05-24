@@ -23,7 +23,12 @@ class Board:
 
         if start_y == end_y and start_x == end_x:
             raise Exception("Invalid move")
-        if not 0 <= start_y <= 7 or not 0 <= start_x <= 7 or not 0 <= end_y <= 7 or not 0 <= end_x <= 7:
+        if (
+            not 0 <= start_y <= 7
+            or not 0 <= start_x <= 7
+            or not 0 <= end_y <= 7
+            or not 0 <= end_x <= 7
+        ):
             raise Exception("Invalid coordinates")
 
         piece: Piece | None = self.board[start_y][start_x]
@@ -36,7 +41,11 @@ class Board:
         if [end_y, end_x] not in self.get_legal_moves(piece.y, piece.x):
             return False
 
-        is_en_passant = isinstance(piece, Pawn) and start_x != end_x and self.board[end_y][end_x] is None
+        is_en_passant = (
+            isinstance(piece, Pawn)
+            and start_x != end_x
+            and self.board[end_y][end_x] is None
+        )
 
         self.board[end_y][end_x] = piece
         self.board[start_y][start_x] = None
@@ -56,7 +65,9 @@ class Board:
                 self.en_passant_target = self.board[end_y][end_x]
             else:
                 self.en_passant_target = None
-            if (piece.color == "white" and end_y == 0) or (piece.color == "black" and end_y == 7):
+            if (piece.color == "white" and end_y == 0) or (
+                piece.color == "black" and end_y == 7
+            ):
                 if promotion == "q":
                     self.board[end_y][end_x] = Queen(end_y, end_x, piece.color)
                 elif promotion == "b":
@@ -100,7 +111,10 @@ class Board:
         king_y, king_x = None, None
         for y in range(8):
             for x in range(8):
-                if isinstance(self.board[y][x], King) and self.board[y][x].color == color:
+                if (
+                    isinstance(self.board[y][x], King)
+                    and self.board[y][x].color == color
+                ):
                     king_y = y
                     king_x = x
                     break
@@ -169,7 +183,11 @@ class Board:
         for y in range(8):
             for x in range(8):
                 square = self.board[y][x]
-                if square is not None and square.color == self.who_moves and self.get_legal_moves(y, x):
+                if (
+                    square is not None
+                    and square.color == self.who_moves
+                    and self.get_legal_moves(y, x)
+                ):
                     return False
 
         if self.is_in_check(self.who_moves):

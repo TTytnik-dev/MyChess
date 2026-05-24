@@ -66,7 +66,9 @@ class TestGameScenarios(unittest.TestCase):
         def test_fen_history_preservation(self):
             from app.src.fen import board_to_fen
 
-            board = parse_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
+            board = parse_fen(
+                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+            )
 
             board.move_piece(6, 4, 4, 4)
 

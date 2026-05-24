@@ -18,18 +18,31 @@ SQ_Size = 800 // 8
 LIGHT = (240, 217, 181)
 DARK = (181, 136, 99)
 
+
 def draw_board(screen, flipped):
     for y in range(8):
         for x in range(8):
             render_y, render_x = (7 - y, 7 - x) if flipped else (y, x)
             if ((y + x) % 2) == 0:
-                pygame.draw.rect(screen, LIGHT, pygame.Rect(render_x * SQ_Size, render_y * SQ_Size, SQ_Size, SQ_Size))
+                pygame.draw.rect(
+                    screen,
+                    LIGHT,
+                    pygame.Rect(
+                        render_x * SQ_Size, render_y * SQ_Size, SQ_Size, SQ_Size
+                    ),
+                )
             else:
-                pygame.draw.rect(screen, DARK, pygame.Rect(render_x * SQ_Size, render_y * SQ_Size, SQ_Size, SQ_Size))
+                pygame.draw.rect(
+                    screen,
+                    DARK,
+                    pygame.Rect(
+                        render_x * SQ_Size, render_y * SQ_Size, SQ_Size, SQ_Size
+                    ),
+                )
 
 
 def load_images():
-    pieces = ['wP', 'wR', 'wN', 'wB', 'wQ', 'wK', 'bP', 'bR', 'bN', 'bB', 'bQ', 'bK']
+    pieces = ["wP", "wR", "wN", "wB", "wQ", "wK", "bP", "bR", "bN", "bB", "bQ", "bK"]
 
     for piece in pieces:
         path = os.path.join("assets", "images", f"{piece}.png")
@@ -40,10 +53,15 @@ def load_images():
         except Exception as e:
             print(f"Cant add {path}. Error: {e}")
 
+
 def draw_pieces(screen, game_board, flipped):
     class_to_char = {
-        'Pawn': 'P', 'Knight': 'N', 'Bishop': 'B',
-        'Rook': 'R', 'Queen': 'Q', 'King': 'K'
+        "Pawn": "P",
+        "Knight": "N",
+        "Bishop": "B",
+        "Rook": "R",
+        "Queen": "Q",
+        "King": "K",
     }
 
     for y in range(8):
@@ -51,20 +69,22 @@ def draw_pieces(screen, game_board, flipped):
             piece = game_board.board[y][x]
             if piece is not None:
                 if piece.color == "white":
-                    color  = "w"
+                    color = "w"
                 else:
                     color = "b"
                 piece_type = type(piece).__name__
                 key = color + class_to_char[piece_type]
 
-                if flipped :
+                if flipped:
                     render_y, render_x = (7 - y, 7 - x)
                 else:
                     render_y, render_x = (y, x)
 
                 screen.blit(
                     IMAGES[key],
-                    pygame.Rect(render_x * SQ_Size, render_y * SQ_Size, SQ_Size, SQ_Size)
+                    pygame.Rect(
+                        render_x * SQ_Size, render_y * SQ_Size, SQ_Size, SQ_Size
+                    ),
                 )
 
 
@@ -83,7 +103,6 @@ def draw_hints(screen, valid_moves, flipped):
         pygame.draw.circle(screen, (169, 169, 169), (center_x, center_y), SQ_Size // 10)
 
 
-
 def draw_selected_highlight(screen, selected_square, flipped):
     if selected_square is not None:
         y, x = selected_square
@@ -98,26 +117,28 @@ def draw_selected_highlight(screen, selected_square, flipped):
         pygame.draw.rect(
             screen,
             highlight_color,
-            pygame.Rect(render_x * SQ_Size, render_y * SQ_Size, SQ_Size, SQ_Size)
+            pygame.Rect(render_x * SQ_Size, render_y * SQ_Size, SQ_Size, SQ_Size),
         )
+
 
 def draw_hover_highlight(screen, hover_y, hover_x, flipped):
     if hover_y is not None and hover_x is not None:
         if flipped:
             render_y, render_x = (7 - hover_y, 7 - hover_x)
         else:
-            render_y, render_x =  (hover_y, hover_x)
+            render_y, render_x = (hover_y, hover_x)
 
         rect = pygame.Rect(render_x * SQ_Size, render_y * SQ_Size, SQ_Size, SQ_Size)
 
         pygame.draw.rect(screen, (255, 255, 255), rect, 4)
 
+
 def draw_turn_indicator(screen, board):
-    if hasattr(board, 'game_over_status') and board.game_over_status:
+    if hasattr(board, "game_over_status") and board.game_over_status:
         return
 
     pygame.font.init()
-    font = pygame.font.SysFont('Arial', 28, bold=True)
+    font = pygame.font.SysFont("Arial", 28, bold=True)
 
     if board.who_moves == "white":
         text = " White's Turn "
@@ -131,7 +152,9 @@ def draw_turn_indicator(screen, board):
     text_surface = font.render(text, True, text_color)
 
     ui_x_start = HEIGHT + 20
-    bg_rect = pygame.Rect(ui_x_start, 20, text_surface.get_width() + 20, text_surface.get_height() + 20)
+    bg_rect = pygame.Rect(
+        ui_x_start, 20, text_surface.get_width() + 20, text_surface.get_height() + 20
+    )
 
     pygame.draw.rect(screen, bg_color, bg_rect, border_radius=5)
     screen.blit(text_surface, (ui_x_start + 10, 30))
@@ -142,12 +165,14 @@ def draw_history_indicator(screen, viewing_history, current_index, max_index):
         return
 
     pygame.font.init()
-    font_main = pygame.font.SysFont('Arial', 24, bold=True)
-    font_sub = pygame.font.SysFont('Arial', 18)
+    font_main = pygame.font.SysFont("Arial", 24, bold=True)
+    font_sub = pygame.font.SysFont("Arial", 18)
 
     text_main = font_main.render("VIEWING HISTORY", True, (255, 50, 50))
 
-    text_sub = font_sub.render(f"Move: {current_index} / {max_index}", True, (200, 200, 200))
+    text_sub = font_sub.render(
+        f"Move: {current_index} / {max_index}", True, (200, 200, 200)
+    )
 
     ui_x = HEIGHT + 20
     ui_y_main = 100
@@ -159,10 +184,11 @@ def draw_history_indicator(screen, viewing_history, current_index, max_index):
 
 def draw_timers(screen, white_time, black_time):
     pygame.font.init()
-    font = pygame.font.SysFont('Arial', 24, bold=True)
+    font = pygame.font.SysFont("Arial", 24, bold=True)
 
     def format_time(seconds):
-        if seconds < 0: seconds = 0
+        if seconds < 0:
+            seconds = 0
         minutes = seconds // 60
         secs = seconds % 60
         return f"{minutes:02d}:{secs:02d}"
@@ -177,7 +203,7 @@ def draw_timers(screen, white_time, black_time):
 
 def draw_undo_button(screen):
     pygame.font.init()
-    font = pygame.font.SysFont('Arial', 20, bold=True)
+    font = pygame.font.SysFont("Arial", 20, bold=True)
 
     button_rect = pygame.Rect(HEIGHT + 20, 280, 160, 40)
 
@@ -185,8 +211,7 @@ def draw_undo_button(screen):
     if button_rect.collidepoint(mouse_pos):
         color = (100, 100, 100)
     else:
-         color =  (70, 70, 70)
-
+        color = (70, 70, 70)
 
     pygame.draw.rect(screen, color, button_rect, border_radius=5)
 
@@ -196,6 +221,7 @@ def draw_undo_button(screen):
 
     return button_rect
 
+
 def draw_check_highlight(screen, board, flipped):
     current_color = board.who_moves
 
@@ -204,24 +230,25 @@ def draw_check_highlight(screen, board, flipped):
 
     for y in range(8):
         for x in range(8):
-            if isinstance(board.board[y][x], King) and board.board[y][x].color == current_color:
+            if (
+                isinstance(board.board[y][x], King)
+                and board.board[y][x].color == current_color
+            ):
                 king_y = y
                 king_x = x
                 break
 
-    if  board.is_in_check(current_color):
+    if board.is_in_check(current_color):
         render_y, render_x = (7 - king_y, 7 - king_x) if flipped else (king_y, king_x)
         red_square_rect = pygame.Rect(
-            render_x * SQ_Size,
-            render_y * SQ_Size,
-            SQ_Size,
-            SQ_Size
+            render_x * SQ_Size, render_y * SQ_Size, SQ_Size, SQ_Size
         )
         pygame.draw.rect(screen, (255, 0, 0), red_square_rect)
 
+
 def draw_load_fen_button(screen):
     pygame.font.init()
-    font = pygame.font.SysFont('Arial', 20, bold=True)
+    font = pygame.font.SysFont("Arial", 20, bold=True)
 
     button_rect = pygame.Rect(HEIGHT + 20, 340, 160, 40)
 
@@ -238,9 +265,10 @@ def draw_load_fen_button(screen):
 
     return button_rect
 
+
 def draw_flip_board_button(screen):
     pygame.font.init()
-    font = pygame.font.SysFont('Arial', 20, bold=True)
+    font = pygame.font.SysFont("Arial", 20, bold=True)
 
     button_rect = pygame.Rect(HEIGHT + 20, 400, 160, 40)
 
@@ -260,6 +288,7 @@ def draw_flip_board_button(screen):
 
     return button_rect
 
+
 def draw_fen_input_overlay(screen, text, error=False, selected=False):
     overlay = pygame.Surface((WIDTH, HEIGHT))
     overlay.set_alpha(220)
@@ -267,11 +296,13 @@ def draw_fen_input_overlay(screen, text, error=False, selected=False):
     screen.blit(overlay, (0, 0))
 
     pygame.font.init()
-    title_font = pygame.font.SysFont('Arial', 32, bold=True)
-    input_font = pygame.font.SysFont('Courier', 20)
-    error_font = pygame.font.SysFont('Arial', 24, bold=True)
+    title_font = pygame.font.SysFont("Arial", 32, bold=True)
+    input_font = pygame.font.SysFont("Courier", 20)
+    error_font = pygame.font.SysFont("Arial", 24, bold=True)
 
-    title = title_font.render("Enter FEN String (ENTER to load, ESC to cancel):", True, (255, 255, 255))
+    title = title_font.render(
+        "Enter FEN String (ENTER to load, ESC to cancel):", True, (255, 255, 255)
+    )
     screen.blit(title, (WIDTH // 2 - title.get_width() // 2, HEIGHT // 2 - 80))
 
     input_box = pygame.Rect(50, HEIGHT // 2 - 20, WIDTH - 100, 50)
@@ -280,7 +311,9 @@ def draw_fen_input_overlay(screen, text, error=False, selected=False):
 
     if selected and text:
         text_width, text_height = input_font.size(text)
-        highlight_rect = pygame.Rect(input_box.x + 10, input_box.y + 12, text_width, text_height)
+        highlight_rect = pygame.Rect(
+            input_box.x + 10, input_box.y + 12, text_width, text_height
+        )
         pygame.draw.rect(screen, (0, 120, 215), highlight_rect)
 
     cursor = "|" if int(time.time() * 2) % 2 == 0 and not selected else ""
@@ -289,16 +322,18 @@ def draw_fen_input_overlay(screen, text, error=False, selected=False):
     screen.blit(txt_surface, (input_box.x + 10, input_box.y + 12))
 
     if error:
-        err_txt = error_font.render("Invalid FEN! Please check the syntax.", True, (255, 80, 80))
+        err_txt = error_font.render(
+            "Invalid FEN! Please check the syntax.", True, (255, 80, 80)
+        )
         screen.blit(err_txt, (WIDTH // 2 - err_txt.get_width() // 2, HEIGHT // 2 + 50))
 
 
 def draw_coordinates(screen, flipped):
     pygame.font.init()
-    font = pygame.font.SysFont('Arial', 14, bold=True)
+    font = pygame.font.SysFont("Arial", 14, bold=True)
 
-    files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
-    ranks = ['1', '2', '3', '4', '5', '6', '7', '8']
+    files = ["a", "b", "c", "d", "e", "f", "g", "h"]
+    ranks = ["1", "2", "3", "4", "5", "6", "7", "8"]
 
     if flipped:
         files = files[::-1]
@@ -310,8 +345,9 @@ def draw_coordinates(screen, flipped):
         rank_text = font.render(ranks[i], True, (100, 100, 100))
         screen.blit(rank_text, (5, (7 - i) * SQ_Size + 5))
 
+
 def draw_game_over_screen(screen, board):
-    if  board.game_over_status:
+    if board.game_over_status:
         status = board.game_over_status
         message = ""
         if status == "white_win_checkmate":
@@ -339,7 +375,7 @@ def draw_game_over_screen(screen, board):
         screen.blit(overlay, (0, 0))
 
         pygame.font.init()
-        font = pygame.font.SysFont('Arial', 48, bold=True)
+        font = pygame.font.SysFont("Arial", 48, bold=True)
         text_surface = font.render(message, True, (255, 255, 255))
 
         text_rect = text_surface.get_rect(center=(WIDTH // 2, HEIGHT // 2))
@@ -352,18 +388,23 @@ def get_promotion_choice(screen, color):
     overlay.fill((0, 0, 0))
     screen.blit(overlay, (0, 0))
 
-    pieces_to_choose = ['Q', 'R', 'B', 'N']
+    pieces_to_choose = ["Q", "R", "B", "N"]
     if color == "white":
-        prefix = 'w'
+        prefix = "w"
     else:
-        prefix = 'b'
+        prefix = "b"
 
     panel_width = 4 * SQ_Size + 50
     panel_height = SQ_Size + 20
     start_x = (HEIGHT - panel_width) // 2
     start_y = (HEIGHT - panel_height) // 2
 
-    pygame.draw.rect(screen, (200, 200, 200), (start_x, start_y, panel_width, panel_height), border_radius=10)
+    pygame.draw.rect(
+        screen,
+        (200, 200, 200),
+        (start_x, start_y, panel_width, panel_height),
+        border_radius=10,
+    )
 
     clickable_rects = []
     for i, p in enumerate(pieces_to_choose):
@@ -405,7 +446,7 @@ def main(play_vs_bot=False, bot_color="black"):
     stockfish_engine = None
     try:
         stockfish_engine = Stockfish("stockfish")
-        #0 - new_player, 10 - master candidate , 20 - monster
+        # 0 - new_player, 10 - master candidate , 20 - monster
         stockfish_engine.set_skill_level(8)
         print("Stockfish engine loaded successfully! Skill level: 8")
     except Exception as e:
@@ -436,7 +477,13 @@ def main(play_vs_bot=False, bot_color="black"):
         board_flipped = False
 
     while True:
-        if play_vs_bot and game_board.who_moves == bot_color and not game_board.game_over_status and not viewing_history and not inputting_fen:
+        if (
+            play_vs_bot
+            and game_board.who_moves == bot_color
+            and not game_board.game_over_status
+            and not viewing_history
+            and not inputting_fen
+        ):
             pygame.time.delay(500)
 
             made_bot_move = False
@@ -447,9 +494,9 @@ def main(play_vs_bot=False, bot_color="black"):
                     best_move = stockfish_engine.get_best_move()
 
                     if best_move:
-                        sx = ord(best_move[0]) - ord('a')
+                        sx = ord(best_move[0]) - ord("a")
                         sy = 8 - int(best_move[1])
-                        ex = ord(best_move[2]) - ord('a')
+                        ex = ord(best_move[2]) - ord("a")
                         ey = 8 - int(best_move[3])
 
                         promo = best_move[4] if len(best_move) == 5 else "q"
@@ -486,10 +533,17 @@ def main(play_vs_bot=False, bot_color="black"):
 
             if inputting_fen:
                 if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_a and (event.mod & (pygame.KMOD_CTRL | pygame.KMOD_META)):
+                    if event.key == pygame.K_a and (
+                        event.mod & (pygame.KMOD_CTRL | pygame.KMOD_META)
+                    ):
                         fen_selected = True
                         continue
-                    if fen_selected and event.unicode.isprintable() and event.key not in (pygame.K_RETURN, pygame.K_ESCAPE, pygame.K_BACKSPACE):
+                    if (
+                        fen_selected
+                        and event.unicode.isprintable()
+                        and event.key
+                        not in (pygame.K_RETURN, pygame.K_ESCAPE, pygame.K_BACKSPACE)
+                    ):
                         fen_text = event.unicode
                         fen_selected = False
                         fen_error = False
@@ -520,15 +574,25 @@ def main(play_vs_bot=False, bot_color="black"):
                             fen_text = fen_text[:-1]
 
                         fen_error = False
-                    elif event.key == pygame.K_v and (event.mod & (pygame.KMOD_CTRL | pygame.KMOD_META)):
+                    elif event.key == pygame.K_v and (
+                        event.mod & (pygame.KMOD_CTRL | pygame.KMOD_META)
+                    ):
                         pasted = ""
                         try:
                             if pygame.scrap.get_init():
-                                for t in (pygame.SCRAP_TEXT, "UTF8_STRING", "text/plain;charset=utf-8"):
+                                for t in (
+                                    pygame.SCRAP_TEXT,
+                                    "UTF8_STRING",
+                                    "text/plain;charset=utf-8",
+                                ):
                                     try:
                                         clip = pygame.scrap.get(t)
                                         if clip:
-                                            pasted = clip.decode("utf-8", errors="ignore").replace("\x00", "").strip()
+                                            pasted = (
+                                                clip.decode("utf-8", errors="ignore")
+                                                .replace("\x00", "")
+                                                .strip()
+                                            )
                                             if pasted:
                                                 break
                                     except Exception:
@@ -539,17 +603,24 @@ def main(play_vs_bot=False, bot_color="black"):
                         if not pasted:
                             try:
                                 pasted = subprocess.check_output(
-                                    ["powershell.exe", "-NoProfile", "-Command", "Get-Clipboard -Raw"],
-                                    text=True
+                                    [
+                                        "powershell.exe",
+                                        "-NoProfile",
+                                        "-Command",
+                                        "Get-Clipboard -Raw",
+                                    ],
+                                    text=True,
                                 ).strip()
                             except Exception:
                                 try:
-                                    pasted = subprocess.check_output(["wl-paste", "-n"], text=True).strip()
+                                    pasted = subprocess.check_output(
+                                        ["wl-paste", "-n"], text=True
+                                    ).strip()
                                 except Exception:
                                     try:
                                         pasted = subprocess.check_output(
                                             ["xclip", "-selection", "clipboard", "-o"],
-                                            text=True
+                                            text=True,
                                         ).strip()
                                     except Exception:
                                         pasted = ""
@@ -649,12 +720,18 @@ def main(play_vs_bot=False, bot_color="black"):
                         is_promotion = False
 
                         if moving_piece and type(moving_piece).__name__ == "Pawn":
-                            if (moving_piece.color == "white" and y == 0) or (moving_piece.color == "black" and y == 7):
+                            if (moving_piece.color == "white" and y == 0) or (
+                                moving_piece.color == "black" and y == 7
+                            ):
                                 is_promotion = True
 
                         if is_promotion:
-                            promo_choice = get_promotion_choice(screen, moving_piece.color)
-                            game_board.move_piece(start_y, start_x, y, x, promotion=promo_choice)
+                            promo_choice = get_promotion_choice(
+                                screen, moving_piece.color
+                            )
+                            game_board.move_piece(
+                                start_y, start_x, y, x, promotion=promo_choice
+                            )
                         else:
                             game_board.move_piece(start_y, start_x, y, x)
 
@@ -690,7 +767,12 @@ def main(play_vs_bot=False, bot_color="black"):
 
         mouse_x, mouse_y = pygame.mouse.get_pos()
         hover_y, hover_x = None, None
-        if mouse_x < HEIGHT and not viewing_history and not game_board.game_over_status and not inputting_fen:
+        if (
+            mouse_x < HEIGHT
+            and not viewing_history
+            and not game_board.game_over_status
+            and not inputting_fen
+        ):
             if board_flipped:
                 hover_y = 7 - (mouse_y // SQ_Size)
                 hover_x = 7 - (mouse_x // SQ_Size)
@@ -708,7 +790,9 @@ def main(play_vs_bot=False, bot_color="black"):
         draw_hints(screen, valid_moves, board_flipped)
 
         draw_turn_indicator(screen, board_to_draw)
-        draw_history_indicator(screen, viewing_history, current_history_index, len(move_history) - 1)
+        draw_history_indicator(
+            screen, viewing_history, current_history_index, len(move_history) - 1
+        )
         draw_timers(screen, white_time, black_time)
         draw_undo_button(screen)
         draw_load_fen_button(screen)
@@ -723,7 +807,13 @@ def main(play_vs_bot=False, bot_color="black"):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Start game MyChess")
-    parser.add_argument('--bot', action='store_true', help="Play vs AI")
-    parser.add_argument('--bot_color', type=str, choices=['white', 'black'], default='black', help="Color of the bot (white or black)")
+    parser.add_argument("--bot", action="store_true", help="Play vs AI")
+    parser.add_argument(
+        "--bot_color",
+        type=str,
+        choices=["white", "black"],
+        default="black",
+        help="Color of the bot (white or black)",
+    )
     args = parser.parse_args()
     main(play_vs_bot=args.bot, bot_color=args.bot_color)

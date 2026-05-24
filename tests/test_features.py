@@ -2,6 +2,7 @@ import unittest
 from stockfish import Stockfish
 from app.src.fen import parse_fen
 
+
 class TestFeatures(unittest.TestCase):
 
     def test_board_flip_logic(self):

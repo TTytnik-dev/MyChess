@@ -20,7 +20,11 @@ class Piece:
         for dy, dx in directions:
             curr_x = start_x + dx
             curr_y = start_y + dy
-            while 0 <= curr_x <= 7 and 0 <= curr_y <= 7 and board.board[curr_y][curr_x] is None:
+            while (
+                0 <= curr_x <= 7
+                and 0 <= curr_y <= 7
+                and board.board[curr_y][curr_x] is None
+            ):
                 valid_moves.append([curr_y, curr_x])
                 curr_x = curr_x + dx
                 curr_y = curr_y + dy
@@ -53,17 +57,29 @@ class Pawn(Piece):
         valid_moves = []
         if self.color == "black":
             if self.y == 4:
-                if self.x + 1 <= 7 and board.board[self.y][self.x + 1] == board.en_passant_target:
+                if (
+                    self.x + 1 <= 7
+                    and board.board[self.y][self.x + 1] == board.en_passant_target
+                ):
                     valid_moves.append([self.y + 1, self.x + 1])
-                elif self.x - 1 >= 0 and board.board[self.y][self.x - 1] == board.en_passant_target:
+                elif (
+                    self.x - 1 >= 0
+                    and board.board[self.y][self.x - 1] == board.en_passant_target
+                ):
                     valid_moves.append([self.y + 1, self.x - 1])
             direction = 1
             start_y = 1
         else:
             if self.y == 3:
-                if self.x + 1 <= 7 and board.board[self.y][self.x + 1] == board.en_passant_target:
+                if (
+                    self.x + 1 <= 7
+                    and board.board[self.y][self.x + 1] == board.en_passant_target
+                ):
                     valid_moves.append([self.y - 1, self.x + 1])
-                elif self.x - 1 >= 0 and board.board[self.y][self.x - 1] == board.en_passant_target:
+                elif (
+                    self.x - 1 >= 0
+                    and board.board[self.y][self.x - 1] == board.en_passant_target
+                ):
                     valid_moves.append([self.y - 1, self.x - 1])
             direction = -1
             start_y = 6
@@ -77,11 +93,18 @@ class Pawn(Piece):
         for dy, dx in diagonal_steps:
             new_x = self.x + dx
             new_y = self.y + dy
-            if 0 <= new_x <= 7 and 0 <= new_y <= 7 and board.board[new_y][new_x] is not None and board.board[new_y][
-                new_x].color != self.color:
+            if (
+                0 <= new_x <= 7
+                and 0 <= new_y <= 7
+                and board.board[new_y][new_x] is not None
+                and board.board[new_y][new_x].color != self.color
+            ):
                 valid_moves.append([new_y, new_x])
-        if self.y == start_y and board.board[self.y + direction * 2][self.x] is None and board.board[step_forward][
-            self.x] is None:
+        if (
+            self.y == start_y
+            and board.board[self.y + direction * 2][self.x] is None
+            and board.board[step_forward][self.x] is None
+        ):
             valid_moves.append([self.y + direction * 2, self.x])
 
         return valid_moves
@@ -96,21 +119,43 @@ class King(Piece):
             if self.color == "black":
                 left_corner = board.board[0][0]
                 right_corner = board.board[0][7]
-                if isinstance(left_corner, Rook) and left_corner.color == self.color and left_corner.was_moved == False:
-                    if board.board[0][1] is None and board.board[0][2] is None and board.board[0][3] is None:
+                if (
+                    isinstance(left_corner, Rook)
+                    and left_corner.color == self.color
+                    and left_corner.was_moved == False
+                ):
+                    if (
+                        board.board[0][1] is None
+                        and board.board[0][2] is None
+                        and board.board[0][3] is None
+                    ):
                         valid_moves.append([0, 2])
-                if isinstance(right_corner,
-                              Rook) and right_corner.color == self.color and right_corner.was_moved == False:
+                if (
+                    isinstance(right_corner, Rook)
+                    and right_corner.color == self.color
+                    and right_corner.was_moved == False
+                ):
                     if board.board[0][6] is None and board.board[0][5] is None:
                         valid_moves.append([0, 6])
             else:
                 left_corner = board.board[7][0]
                 right_corner = board.board[7][7]
-                if isinstance(left_corner, Rook) and left_corner.color == self.color and left_corner.was_moved == False:
-                    if board.board[7][1] is None and board.board[7][2] is None and board.board[7][3] is None:
+                if (
+                    isinstance(left_corner, Rook)
+                    and left_corner.color == self.color
+                    and left_corner.was_moved == False
+                ):
+                    if (
+                        board.board[7][1] is None
+                        and board.board[7][2] is None
+                        and board.board[7][3] is None
+                    ):
                         valid_moves.append([7, 2])
-                if isinstance(right_corner,
-                              Rook) and right_corner.color == self.color and right_corner.was_moved == False:
+                if (
+                    isinstance(right_corner, Rook)
+                    and right_corner.color == self.color
+                    and right_corner.was_moved == False
+                ):
                     if board.board[7][6] is None and board.board[7][5] is None:
                         valid_moves.append([7, 6])
 
@@ -119,7 +164,16 @@ class King(Piece):
 
 class Queen(Piece):
     def get_valid_moves(self, board):
-        directions = [(-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (-1, 1), (1, -1), (1, 1)]
+        directions = [
+            (-1, 0),
+            (1, 0),
+            (0, -1),
+            (0, 1),
+            (-1, -1),
+            (-1, 1),
+            (1, -1),
+            (1, 1),
+        ]
         return self.sliding_moves(board, directions)
 
 
@@ -137,5 +191,14 @@ class Rook(Piece):
 
 class Knight(Piece):
     def get_valid_moves(self, board):
-        directions = [(2, 1), (2, -1), (-2, 1), (-2, -1), (1, 2), (-1, 2), (1, -2), (-1, -2)]
+        directions = [
+            (2, 1),
+            (2, -1),
+            (-2, 1),
+            (-2, -1),
+            (1, 2),
+            (-1, 2),
+            (1, -2),
+            (-1, -2),
+        ]
         return self.step_moves(board, directions)
