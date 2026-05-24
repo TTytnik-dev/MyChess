@@ -176,7 +176,40 @@ def board_to_fen(board):
 
     fen += " " + ("w" if board.who_moves == "white" else "b")
 
-    fen += " - - 0 1"
+    castling = ""
+    wk = board.board[7][4]
+    if wk and type(wk).__name__ == 'King' and wk.color == 'white' and not getattr(wk, 'was_moved', False):
+        wr_k = board.board[7][7]
+        wr_q = board.board[7][0]
+        if wr_k and type(wr_k).__name__ == 'Rook' and wr_k.color == 'white' and not getattr(wr_k, 'was_moved', False):
+            castling += "K"
+        if wr_q and type(wr_q).__name__ == 'Rook' and wr_q.color == 'white' and not getattr(wr_q, 'was_moved', False):
+            castling += "Q"
+    bk = board.board[0][4]
+    if bk and type(bk).__name__ == 'King' and bk.color == 'black' and not getattr(bk, 'was_moved', False):
+        br_k = board.board[0][7]
+        br_q = board.board[0][0]
+        if br_k and type(br_k).__name__ == 'Rook' and br_k.color == 'black' and not getattr(br_k, 'was_moved', False):
+            castling += "k"
+        if br_q and type(br_q).__name__ == 'Rook' and br_q.color == 'black' and not getattr(br_q, 'was_moved', False):
+            castling += "q"
+
+    if castling == "":
+        castling = "-"
+    fen += " " + castling
+
+    ep_str = "-"
+    if board.en_passant_target is not None:
+        ep_pawn = board.en_passant_target
+        file_char = chr(ord('a') + ep_pawn.x)
+        if ep_pawn.color == "white" and ep_pawn.y == 4:
+            ep_str = f"{file_char}3"
+        elif ep_pawn.color == "black" and ep_pawn.y == 3:
+            ep_str = f"{file_char}6"
+
+    fen += " " + ep_str
+
+    fen += f" {board.halfmove_clock} {board.fullmove_number}"
 
     return fen
 

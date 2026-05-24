@@ -48,3 +48,31 @@ class TestGameScenarios(unittest.TestCase):
         self.assertIsNotNone(piece)
         self.assertEqual(type(piece).__name__, "Queen")
         self.assertEqual(piece.color, "white")
+
+        def test_en_passant_capture(self):
+            board = parse_fen("4k3/3p4/8/4P3/8/8/8/4K3 b - - 0 1")
+
+            board.move_piece(1, 3, 3, 3)
+
+            self.assertIsNotNone(board.en_passant_target)
+            self.assertEqual(board.en_passant_target.y, 3)
+            self.assertEqual(board.en_passant_target.x, 3)
+
+            board.move_piece(3, 4, 2, 3)
+
+            self.assertEqual(type(board.board[2][3]).__name__, "Pawn")
+            self.assertEqual(board.board[2][3].color, "white")
+            self.assertIsNone(board.board[3][3])
+
+        def test_fen_history_preservation(self):
+            from app.src.fen import board_to_fen
+
+            board = parse_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
+
+            board.move_piece(6, 4, 4, 4)
+
+            new_fen = board_to_fen(board)
+
+            self.assertIn("KQkq", new_fen)
+
+            self.assertIn("e3", new_fen)
