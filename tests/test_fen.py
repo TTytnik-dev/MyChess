@@ -61,13 +61,12 @@ def test_castling_rights_parsing():
     fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w Kq - 0 1"
     board = parse_fen(fen)
 
-    assert(not board.board[7][7].was_moved)
-    assert(not board.board[7][4].was_moved)
+    assert (not board.board[7][7].was_moved)
+    assert (not board.board[7][4].was_moved)
     assert board.board[7][0].was_moved
 
-
-    assert(not board.board[0][0].was_moved)
-    assert(not board.board[0][4].was_moved)
+    assert (not board.board[0][0].was_moved)
+    assert (not board.board[0][4].was_moved)
     assert board.board[0][7].was_moved
 
 

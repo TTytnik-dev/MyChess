@@ -4,6 +4,7 @@ from app.src.board import Board
 
 from app.src.fen import parse_fen
 
+
 def test_pawn_moves():
     test_board = parse_fen("rnbqkbnr/p1p1p1pp/8/8/3p4/1p3p2/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
 
@@ -23,10 +24,11 @@ def test_pawn_moves():
 
     test_board = parse_fen("rnbqkbnr/ppppp1pp/8/4Pp2/8/8/PPPP1PPP/RNBQKBNR w KQkq - 0 1")
     test_board.en_passant_target = test_board.board[3][5]
-    moves_4= test_board.board[3][4].get_valid_moves(test_board)
+    moves_4 = test_board.board[3][4].get_valid_moves(test_board)
     assert len(moves_4) == 2
     assert [2, 4] in moves_4
     assert [2, 5] in moves_4
+
 
 def test_queen_moves():
     test_board = parse_fen("rn2kb1r/pp2pppp/2p5/3q1b2/8/3P4/PPP2PPP/R1BQKBNR w KQkq - 0 1")
@@ -41,6 +43,7 @@ def test_queen_moves():
     assert [2, 4] in moves
     assert [2, 2] not in moves
 
+
 def test_rook_moves():
     test_board = parse_fen("6k1/p1pn2pp/8/3R4/2P1rp2/8/PP3PPP/4R1K1 w - - 0 1")
     moves = test_board.board[4][4].get_valid_moves(test_board)
@@ -52,6 +55,7 @@ def test_rook_moves():
     assert [7, 4] in moves
     assert [1, 4] in moves
 
+
 def test_bishop_moves():
     test_board = parse_fen("6k1/p1pn1ppp/8/3B4/2P1rp2/8/PP3PPP/4R1K1 w - - 0 1")
     moves = test_board.board[3][3].get_valid_moves(test_board)
@@ -60,7 +64,8 @@ def test_bishop_moves():
     assert [4, 2] not in moves
     assert [1, 5] in moves
     assert [1, 1] in moves
-    assert [2, 3] not  in moves
+    assert [2, 3] not in moves
+
 
 def test_knight_moves():
     test_board = parse_fen("r1bqkb1r/ppp1nppp/2n1p3/3pP3/3P4/5N2/PPP2PPP/RNBQKB1R w KQkq - 0 1")
@@ -72,6 +77,7 @@ def test_knight_moves():
     assert [4, 3] in moves
     assert [4, 1] in moves
 
+
 def test_king_moves():
     test_board = parse_fen("r1bqkb1r/ppp1nppp/4p3/3pP3/3P4/5N2/PPP1KnPP/RNBQ3R w kq - 0 1")
     test_board.board[6][4].was_moved = True
@@ -79,7 +85,7 @@ def test_king_moves():
 
     assert len(moves) == 6
 
-    assert [6, 3]  in moves
+    assert [6, 3] in moves
     assert [6, 5] in moves
     assert [5, 3] in moves
     assert [7, 5] in moves
@@ -101,5 +107,3 @@ def test_king_moves():
     assert [0, 6] in moves_2
     assert [0, 5] in moves_2
     assert [0, 3] in moves_2
-
-

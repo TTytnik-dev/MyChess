@@ -5,15 +5,15 @@ from app.src.fen import parse_fen
 from app.src.board import Board
 from app.src import pieces
 
-def print_board(board):
 
+def print_board(board):
     piece_to_char = {
-        pieces.Pawn :'p',
-        pieces.Knight :'n',
-        pieces.Bishop : 'b',
-        pieces.Rook : 'r',
-        pieces.Queen : 'q',
-        pieces.King : 'k'
+        pieces.Pawn: 'p',
+        pieces.Knight: 'n',
+        pieces.Bishop: 'b',
+        pieces.Rook: 'r',
+        pieces.Queen: 'q',
+        pieces.King: 'k'
     }
 
     for y in range(8):
@@ -26,6 +26,7 @@ def print_board(board):
             else:
                 print(f" {piece_to_char[type(board.board[y][x])]} ", end="")
         print(f"  {8 - y}")
+
 
 def moves_in_int(move):
     blocks = move.split(" ")
@@ -58,6 +59,7 @@ def game():
                 print("❌ Invalid move .")
         except:
             print("❌ invalid input format : e2 e4")
+
 
 if __name__ == "__main__":
     game()

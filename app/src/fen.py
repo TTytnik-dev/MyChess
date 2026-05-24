@@ -1,5 +1,6 @@
 from app.src import pieces
 
+
 def validate_fen(fen_string):
     blocks = fen_string.split(" ")
 
@@ -13,13 +14,13 @@ def validate_fen(fen_string):
     board_block = blocks[0]
 
     if board_block.count("k") != 1:
-        raise Exception ("black king must be 1")
+        raise Exception("black king must be 1")
     if board_block.count("K") != 1:
-        raise Exception ("white king must be 1")
+        raise Exception("white king must be 1")
     if board_block.count("p") > 8:
-        raise Exception ("black pawns cant be more then 8")
+        raise Exception("black pawns cant be more then 8")
     if board_block.count("P") > 8:
-        raise Exception ("white pawns cant be more than 8")
+        raise Exception("white pawns cant be more than 8")
 
     for row in parts:
         count = 0
@@ -103,7 +104,6 @@ def parse_fen(fen_string):
             else:
                 board_x += int(row[x])
 
-
     turns = blocks[1]
 
     if turns == "w":
@@ -111,24 +111,22 @@ def parse_fen(fen_string):
     else:
         board.who_moves = "black"
 
-    if len(blocks ) >= 3:
+    if len(blocks) >= 3:
         castlings = blocks[2]
 
         if "Q" not in castlings:
-            if  board.board[7][0] : board.board[7][0].was_moved = True
+            if board.board[7][0]: board.board[7][0].was_moved = True
         if "K" not in castlings:
-            if board.board[7][7] : board.board[7][7].was_moved = True
+            if board.board[7][7]: board.board[7][7].was_moved = True
         if "Q" not in castlings and "K" not in castlings:
-            if board.board[7][4] : board.board[7][4].was_moved = True
+            if board.board[7][4]: board.board[7][4].was_moved = True
 
         if "q" not in castlings:
-            if board.board[0][0] : board.board[0][0].was_moved = True
+            if board.board[0][0]: board.board[0][0].was_moved = True
         if "k" not in castlings:
-            if  board.board[0][7] : board.board[0][7].was_moved = True
+            if board.board[0][7]: board.board[0][7].was_moved = True
         if "q" not in castlings and "k" not in castlings:
-            if board.board[0][4] : board.board[0][4].was_moved = True
-
-
+            if board.board[0][4]: board.board[0][4].was_moved = True
 
     if len(blocks) >= 4:
         ep = blocks[3]
@@ -212,4 +210,3 @@ def board_to_fen(board):
     fen += f" {board.halfmove_clock} {board.fullmove_number}"
 
     return fen
-

@@ -39,7 +39,6 @@ class TestGameScenarios(unittest.TestCase):
         self.assertNotIn([7, 2], board.get_legal_moves(7, 4))
 
     def test_pawn_promotion(self):
-
         board = parse_fen("8/3P4/8/8/8/8/8/k6K w - - 0 1")
 
         board.move_piece(1, 3, 0, 3, promotion="q")
