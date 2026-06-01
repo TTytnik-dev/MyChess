@@ -163,6 +163,14 @@ class Board:
                 if not mid_safe:
                     continue
 
+            is_en_passant = False
+            captured_ep_pawn = None
+
+            if isinstance(piece, Pawn) and x != old_x and piece_type is None:
+                is_en_passant = True
+                captured_ep_pawn = self.board[old_y][x]
+                self.board[old_y][x] = None
+
             self.board[old_y][old_x] = None
             self.board[y][x] = piece
 
@@ -176,6 +184,9 @@ class Board:
             self.board[y][x] = piece_type
             piece.x = old_x
             piece.y = old_y
+
+            if is_en_passant:
+                self.board[old_y][x] = captured_ep_pawn
 
         return legal_moves
 
