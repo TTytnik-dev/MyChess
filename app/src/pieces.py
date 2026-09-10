@@ -1,6 +1,3 @@
-from numpy.ma.core import left_shift
-
-
 class Piece:
     def __init__(self, y, x, color, was_moved=False):
         self.x = x

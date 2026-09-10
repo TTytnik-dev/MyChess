@@ -1,5 +1,3 @@
-from numpy.lib.shape_base import split
-
 from app.src import board
 from app.src.fen import parse_fen
 from app.src.board import Board
